@@ -16,8 +16,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.linked_sys.softxperttask.CarsModule.Adapters.CarsAdapter;
+import com.linked_sys.softxperttask.CarsModule.Contract;
 import com.linked_sys.softxperttask.CarsModule.Models.CarModel;
 import com.linked_sys.softxperttask.CarsModule.Models.Root;
+import com.linked_sys.softxperttask.CarsModule.presenter.MainPresenter;
 import com.linked_sys.softxperttask.R;
 import com.linked_sys.softxperttask.Utils.EndPoint;
 import com.linked_sys.softxperttask.Utils.RetrofitClient;
@@ -29,18 +31,21 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Contract {
 
 
 
     ActivityMainBinding binding;
     private ProgressDialog dialog1;
+    MainPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        binding= DataBindingUtil.setContentView(this,R.layout.activity_main);
         dialog1 = new ProgressDialog(this);
+
+        presenter=new MainPresenter(this);
 
 
 
@@ -52,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
                if (!pagenumber.equals("")) {
 
                    getCarsList(Integer.parseInt(pagenumber));
+
+                   /*
+                   if want to use mvp design pattren
+                   presenter.getCarsList(pagenumber);
+
+                    */
                }
                else{
                    Toast.makeText(MainActivity.this, "Enter Page Number ", Toast.LENGTH_SHORT).show();
@@ -176,5 +187,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void getCars(List<CarModel> cars) {
+
+        binding.recycleCars.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        binding.recycleCars.setAdapter(new CarsAdapter(MainActivity.this,cars));
     }
 }
