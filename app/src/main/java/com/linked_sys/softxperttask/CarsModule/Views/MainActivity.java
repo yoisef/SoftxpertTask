@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
                    getCarsList(Integer.parseInt(pagenumber));
                }
+               else{
+                   Toast.makeText(MainActivity.this, "Enter Page Number ", Toast.LENGTH_SHORT).show();
+               }
 
 
 
@@ -69,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
                    getCarsList(Integer.parseInt(pagenumber));
                }
+               else{
+                   binding.refreshCars.setRefreshing(false);
+               }
 
 
            }
@@ -82,42 +88,50 @@ public class MainActivity extends AppCompatActivity {
     private void getCarsList(int pagenumber)
     {
 
-        Call<Root<CarModel>> call;
+        Call<Root<List<CarModel>>> call;
         Retrofit retrofit = RetrofitClient.getRetrofit();
         EndPoint endpoints = retrofit.create(EndPoint.class);
         call=endpoints.getAllCars(pagenumber);
-        call.enqueue(new Callback<Root<CarModel>>() {
+        call.enqueue(new Callback<Root<List<CarModel>>>() {
             @Override
-            public void onResponse(Call<Root<CarModel>> call, Response<Root<CarModel>> response) {
-
+            public void onResponse(Call<Root<List<CarModel>>> call, Response<Root<List<CarModel>>> response) {
                 if (response.isSuccessful())
                 {
+                    binding.refreshCars.setRefreshing(false);
+                    if (response.body().getData()!=null)
+                    {
+                        List<CarModel> cars= response.body().getData();
+                        if (cars.size()!=0)
+                        {
+                            binding.recycleCars.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                            binding.recycleCars.setAdapter(new CarsAdapter(MainActivity.this,cars));
+                        }
+                    }
 
-                 List<CarModel> cars= response.body().getData();
-                    binding.recycleCars.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    binding.recycleCars.setAdapter(new CarsAdapter(MainActivity.this,cars));
+
                 }else{
                     try {
                         String res=response.errorBody().string();
                         JSONObject jsonObject=new JSONObject(res);
-                      JSONObject error= new JSONObject((String) jsonObject.get("error"));
+                        JSONObject error= new JSONObject((String) jsonObject.get("error"));
 
-                      Toast.makeText(MainActivity.this, String.valueOf(error.get("message")) ,Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(MainActivity.this, String.valueOf(error.get("message")) ,Toast.LENGTH_SHORT).show();
+                        binding.refreshCars.setRefreshing(false);
                     } catch (JSONException | IOException e) {
                         e.printStackTrace();
                     }
                 }
-
             }
 
             @Override
-            public void onFailure(Call<Root<CarModel>> call, Throwable t) {
+            public void onFailure(Call<Root<List<CarModel>>> call, Throwable t) {
 
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.connection_lost), Toast.LENGTH_SHORT).show();
+                binding.refreshCars.setRefreshing(false);
 
             }
         });
+
 
     }
 }

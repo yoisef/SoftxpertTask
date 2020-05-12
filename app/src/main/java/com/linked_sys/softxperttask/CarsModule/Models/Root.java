@@ -11,7 +11,7 @@ public class Root<T> {
 private Integer status;
 @SerializedName("data")
 @Expose
-private List<T> data = null;
+private T data = null;
 
 public Integer getStatus() {
 return status;
@@ -21,11 +21,11 @@ public void setStatus(Integer status) {
 this.status = status;
 }
 
-public List<T> getData() {
+public T getData() {
 return data;
 }
 
-public void setData(List<T> data) {
+public void setData( T data) {
 this.data = data;
 }
 

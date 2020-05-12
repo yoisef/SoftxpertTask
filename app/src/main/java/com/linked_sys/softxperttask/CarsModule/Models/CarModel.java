@@ -13,7 +13,7 @@ private Integer id;
 private String brand;
 @SerializedName("constructionYear")
 @Expose
-private Long constructionYear;
+private Object constructionYear;
 @SerializedName("isUsed")
 @Expose
 private Boolean isUsed;
@@ -37,7 +37,7 @@ public void setBrand(String brand) {
 this.brand = brand;
 }
 
-public Long getConstructionYear() {
+public Object getConstructionYear() {
 return constructionYear;
 }
 
