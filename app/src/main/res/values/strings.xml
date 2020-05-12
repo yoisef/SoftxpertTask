@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SoftxpertTask</string>
+    <string name="used_or_new">Used Or New </string>
+    <string name="connection_lost">Connection Lost</string>
+</resources>
