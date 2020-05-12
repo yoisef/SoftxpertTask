@@ -9,6 +9,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -32,13 +34,17 @@ public class MainActivity extends AppCompatActivity {
 
 
     ActivityMainBinding binding;
+    private ProgressDialog dialog1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        binding= DataBindingUtil.setContentView(this,R.layout.activity_main);
+        dialog1 = new ProgressDialog(this);
 
 
-       binding.searchbut.setOnClickListener(new View.OnClickListener() {
+
+        binding.searchbut.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View view) {
                String pagenumber= binding.editNumber.getText().toString();
@@ -87,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getCarsList(int pagenumber)
     {
+        ShowDialog(this,"Loading...");
 
         Call<Root<List<CarModel>>> call;
         Retrofit retrofit = RetrofitClient.getRetrofit();
@@ -95,8 +102,12 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<Root<List<CarModel>>>() {
             @Override
             public void onResponse(Call<Root<List<CarModel>>> call, Response<Root<List<CarModel>>> response) {
+
+                HideDialog();
                 if (response.isSuccessful())
                 {
+
+
                     binding.refreshCars.setRefreshing(false);
                     if (response.body().getData()!=null)
                     {
@@ -106,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
                             binding.recycleCars.setLayoutManager(new LinearLayoutManager(MainActivity.this));
                             binding.recycleCars.setAdapter(new CarsAdapter(MainActivity.this,cars));
                         }
+                    }
+                    else{
+                        Toast.makeText(MainActivity.this, "No Cars withThis Page Number ", Toast.LENGTH_SHORT).show();
                     }
 
 
@@ -126,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Root<List<CarModel>>> call, Throwable t) {
 
+                HideDialog();
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.connection_lost), Toast.LENGTH_SHORT).show();
                 binding.refreshCars.setRefreshing(false);
 
@@ -133,5 +148,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void ShowDialog(final Activity ac, final String message)
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                dialog1.setMessage(message);
+                dialog1.setCancelable(false);
+                if(!dialog1.isShowing()) {
+                    dialog1.show();
+                }
+            }
+        });
+
+    }
+
+    public void HideDialog()
+    {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(dialog1.isShowing())
+                {
+                    dialog1.dismiss();
+                }
+            }
+        });
     }
 }
