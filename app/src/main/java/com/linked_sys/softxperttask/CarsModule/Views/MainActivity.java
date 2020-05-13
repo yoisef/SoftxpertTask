@@ -5,6 +5,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -18,6 +19,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.linked_sys.softxperttask.CarsModule.Adapters.CarsAdapter;
 import com.linked_sys.softxperttask.CarsModule.Contract;
 import com.linked_sys.softxperttask.CarsModule.Models.CarModel;
@@ -31,6 +34,7 @@ import com.linked_sys.softxperttask.databinding.ActivityMainBinding;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.util.List;
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements Contract {
                 if (response.isSuccessful()) {
 
 
+
                     binding.refreshCars.setRefreshing(false);
                     if (response.body().getData() != null) {
                         List<CarModel> cars = response.body().getData();
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements Contract {
                                 public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
 
 
-                                    getCarsList(page+1);
+                                    getCarsList(pagenumber+1);
 
 
 
@@ -170,17 +175,6 @@ public class MainActivity extends AppCompatActivity implements Contract {
                         }
 
 
-                    } else {
-                        try {
-                            String res = response.errorBody().string();
-                            JSONObject jsonObject = new JSONObject(res);
-                            JSONObject error = new JSONObject((String) jsonObject.get("error"));
-
-                            Toast.makeText(MainActivity.this, String.valueOf(error.get("message")), Toast.LENGTH_SHORT).show();
-                            binding.refreshCars.setRefreshing(false);
-                        } catch (JSONException | IOException e) {
-                            e.printStackTrace();
-                        }
                     }
                 }
             }
@@ -197,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements Contract {
 
 
     }
+
 
     public void ShowDialog(final Activity ac, final String message)
     {
